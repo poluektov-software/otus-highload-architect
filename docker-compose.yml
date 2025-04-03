@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  # Контейнер приложения
+  go-app:
+
+    build: ./
+    command: /usr/local/bin/app
+    ports:
+      - 8030:80
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=otus
+
+  # Контейнер базы данных
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./database/postgresql/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=otus
+      - POSTGRES_PASSWORD=otus
+      - POSTGRES_DB=otus
+    ports:
+      - 5434:5432
