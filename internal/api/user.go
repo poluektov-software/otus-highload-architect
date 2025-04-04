@@ -1,10 +1,10 @@
 package api
 
 import (
-	"cmd/internal/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"otus-highload-architect/internal/model"
 	"strconv"
 )
 
@@ -13,8 +13,10 @@ func (s *service) create(c *gin.Context) {
 		user model.User
 		err  error
 	)
-	if err = c.BindJSON(&user); err != nil {
-		fmt.Print("User data error")
+	c.Header("Content-Type", "application/json")
+	if err = c.ShouldBindJSON(&user); err != nil {
+		log.Printf("User data error: %s", err.Error())
+		c.Status(http.StatusUnprocessableEntity)
 		return
 	}
 	err = s.storage.AddUser(c.Request.Context(), model.Account{
@@ -22,7 +24,9 @@ func (s *service) create(c *gin.Context) {
 		LastName:  user.LastName,
 	})
 	if err != nil {
-		fmt.Print("User not added")
+		log.Printf("User not added: %s", err.Error())
+		c.Status(http.StatusBadRequest)
+		return
 	}
 }
 
@@ -31,18 +35,18 @@ func (s *service) get(c *gin.Context) {
 		id  int
 		err error
 	)
+	c.Header("Content-Type", "application/json")
 	id, err = strconv.Atoi(c.Param("id"))
 	if err != nil {
-		fmt.Print("User id invalid")
+		log.Print("User id invalid")
 		c.Status(http.StatusBadRequest)
 		return
 	}
 	user, err := s.storage.GetUser(c.Request.Context(), id)
 	if err != nil {
-		fmt.Print("User not found")
+		log.Print("User not found")
 		c.Status(http.StatusNotFound)
 		return
 	}
-	fmt.Printf("first_name = %s, last_name = %s", user.FirstName, user.LastName)
 	c.JSON(http.StatusOK, user)
 }

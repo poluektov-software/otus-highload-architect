@@ -1,9 +1,9 @@
 package api
 
 import (
-	"cmd/internal/model"
 	"context"
 	"github.com/gin-gonic/gin"
+	"otus-highload-architect/internal/model"
 )
 
 type Storage interface {
